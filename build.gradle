@@ -13,9 +13,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
-    // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    implementation 'com.mysql:mysql-connector-j:8.0.32'
-
     implementation 'cglib:cglib:2.2'
     implementation 'commons-logging:commons-logging:1.1.1'
     implementation 'org.springframework:spring-asm:3.0.7.RELEASE'
