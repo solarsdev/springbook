@@ -44,14 +44,14 @@ public class UserDao {
         ResultSet resultSet = preparedStatement.executeQuery();
         User user = null;
 
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             user = new User();
             user.setId(resultSet.getString("id"));
             user.setName(resultSet.getString("name"));
             user.setPassword(resultSet.getString("password"));
         }
 
-        if(user == null) throw new EmptyResultDataAccessException(1);
+        if (user == null) throw new EmptyResultDataAccessException(1);
 
         resultSet.close();
         preparedStatement.close();
@@ -60,31 +60,64 @@ public class UserDao {
         return user;
     }
 
-    public int deleteAll() throws SQLException {
-        Connection connection = dataSource.getConnection();
+    public void deleteAll() throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement("delete from users");
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                }
+            }
 
-        PreparedStatement preparedStatement = connection.prepareStatement("delete from users");
-        int affectedRowCount = preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
-
-        return affectedRowCount;
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
     }
 
     public int getCount() throws SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
-        PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from users");
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
-
-        int count = resultSet.getInt(1);
-
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-
-        return count;
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement("select count(*) from users");
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
     }
 }
