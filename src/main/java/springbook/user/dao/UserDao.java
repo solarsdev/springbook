@@ -12,27 +12,13 @@ import java.sql.SQLException;
 public class UserDao {
     private DataSource dataSource;
 
-//    public UserDao(ConnectionMaker connectionMaker) {
-//        this.connectionMaker = connectionMaker;
-//    }
-
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public int add(User user) throws SQLException {
-        Connection connection = dataSource.getConnection();
-
-        PreparedStatement preparedStatement = connection.prepareStatement("insert into users(id, name, password) values (?,?,?)");
-        preparedStatement.setString(1, user.getId());
-        preparedStatement.setString(2, user.getName());
-        preparedStatement.setString(3, user.getPassword());
-        int affectedRowCount = preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
-
-        return affectedRowCount;
+    public void add(User user) throws SQLException {
+        StatementStrategy strategy = new AddStatement(user);
+        jdbcContextWithStatementStrategy(strategy);
     }
 
     public User get(String id) throws SQLException {
@@ -61,29 +47,8 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement("delete from users");
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+        StatementStrategy deleteAllStatement = new DeleteAllStatement();
+        jdbcContextWithStatementStrategy(deleteAllStatement);
     }
 
     public int getCount() throws SQLException {
@@ -112,6 +77,33 @@ public class UserDao {
                 } catch (SQLException e) {
                 }
             }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+    }
+
+    private void jdbcContextWithStatementStrategy(StatementStrategy strategy) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = strategy.makePreparedStatement(connection);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                }
+            }
+
             if (connection != null) {
                 try {
                     connection.close();
