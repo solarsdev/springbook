@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.User;
@@ -15,7 +16,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/applicationContext.xml")
+@ContextConfiguration(locations = "/test-applicationContext.xml")
+@DirtiesContext
 public class UserDaoTest {
     @Autowired
     private UserDao dao;
@@ -27,6 +29,9 @@ public class UserDaoTest {
 //        System.out.println(this.context);
 //        System.out.println(this);
 //        this.dao = context.getBean("userDao", UserDao.class);
+//        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "password", true);
+//        dao.setDataSource(dataSource);
+
         testUsers = new HashMap<>();
         testUsers.put("user1", new User("user1", "user1", "user1"));
         testUsers.put("user2", new User("user2", "user2", "user2"));
