@@ -23,17 +23,8 @@ public class UserDao {
         this.jdbcContext = jdbcContext;
     }
 
-    public void add(final User user) throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into users(id, name, password) values (?,?,?)");
-                preparedStatement.setString(1, user.getId());
-                preparedStatement.setString(2, user.getName());
-                preparedStatement.setString(3, user.getPassword());
-                return preparedStatement;
-            }
-        });
+    public void add(User user) throws SQLException {
+        this.jdbcContext.executeSql("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
     }
 
     public User get(String id) throws SQLException {
@@ -62,12 +53,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
-                return connection.prepareStatement("delete from users");
-            }
-        });
+        this.jdbcContext.executeSql("delete from users");
     }
 
     public int getCount() throws SQLException {
